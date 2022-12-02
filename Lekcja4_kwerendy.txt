@@ -1,0 +1,26 @@
+SELECT AVG(waga) FROM kreatura WHERE rodzaj = "wiking";
+SELECT AVG(waga), COUNT(idKreatury), rodzaj FROM kreatura GROUP BY rodzaj;
+SELECT AVG(year(CURDATE()) - year(dataUr)) AS sredniWiek, rodzaj FROM kreatura GROUP BY rodzaj;
+
+SELECT SUM(waga * ilosc), rodzaj FROM zasob GROUP BY rodzaj;
+SELECT nazwa, AVG(waga) FROM zasob GROUP BY nazwa HAVING COUNT(ilosc) >= 4 AND SUM(waga) >= 10;
+SELECT COUNT(DISTINCT nazwa), rodzaj FROM zasob WHERE ilosc > 1 GROUP BY rodzaj;
+
+SELECT kreatura.nazwa, COUNT(ekwipunek.idZasobu) FROM ekwipunek 
+	JOIN kreatura ON ekwipunek.idKreatury = kreatura.idKreatury 
+	GROUP BY ekwipunek.idKreatury;
+SELECT kreatura.nazwa, zasob.nazwa FROM ekwipunek
+	JOIN kreatura ON ekwipunek.idKreatury = kreatura.idKreatury
+	JOIN zasob ON ekwipunek.idZasobu = zasob.idZasobu
+	ORDER BY kreatura.nazwa;
+SELECT kreatura.nazwa, ekwipunek.idEkwipunku FROM kreatura 
+	LEFT JOIN ekwipunek ON kreatura.idKreatury = ekwipunek.idKreatury 
+	WHERE idEkwipunku IS NULL;
+
+SELECT kreatura.nazwa, kreatura.dataUr, ekwipunek.idEkwipunku FROM kreatura NATURAL JOIN ekwipunek 	WHERE kreatura.dataUr BETWEEN '1670-01-01' AND '1679-12-31';
+
+
+
+
+
+
