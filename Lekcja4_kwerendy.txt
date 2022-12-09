@@ -19,14 +19,21 @@ SELECT kreatura.nazwa, ekwipunek.idEkwipunku FROM kreatura
 
 SELECT kreatura.nazwa, kreatura.dataUr, ekwipunek.idEkwipunku FROM kreatura NATURAL JOIN ekwipunek 
 	WHERE kreatura.dataUr BETWEEN '1670-01-01' AND '1679-12-31';
-SELECT kreatura.nazwa, ekwipunek.idEkwipunku, rodzaj.zasob FROM kreatura 
-	JOIN ekwipunek ON kreatura.idKreatury = ekwipunek.idKreatury
-	JOIN zasob ON ekwipunek.idZasobu = zasob.idZadobu
-	WHERE zasob.rodzaj = 'jedzenie';
+SELECT kreatura.nazwa, ekwipunek.idEkwipunku, zasob.rodzaj FROM ekwipunek 
+	JOIN kreatura ON ekwipunek.idKreatury = kreatura.idKreatury 
+	JOIN zasob ON ekwipunek.idZasobu = zasob.idZasobu 
+	WHERE zasob.rodzaj = "jedzenie" 
+	ORDER BY dataUr DESC LIMIT 5;
 SELECT A.nazwa, B.nazwa, A.idKreatury, B.idKreatury FROM kreatura A, kreatura B WHERE A.idKreatury = B.idKreatury + 5;
 	
-SELECT AVG(zasob.nazwa * zasob.ilosc), DISTINCT kreatura.rodzaj FROM zasob
-	JOIN ekwipunek ON zasob.idZasobu = ekwipunek.idZasobu
-	JOIN kreatura ON ekwipunek.idKreatury = kreatura.idKreatury
-	GROUP BY kreatura.rodzaj;
+SELECT kreatura.rodzaj, AVG(zasob.waga * zasob.ilosc) FROM ekwipunek 
+	JOIN kreatura ON ekwipunek.idKreatury = kreatura.idKreatury 
+	JOIN zasob ON ekwipunek.idZasobu = zasob.idZasobu 
+	WHERE ekwipunek.ilosc < 30 
+	GROUP BY kreatura.rodzaj 
+	HAVING kreatura.rodzaj != "malpa" AND rodzaj != "waz";
+SELECT A.nazwa, A.rodzaj, A.dataUr FROM kreatura A 
+	JOIN (SELECT rodzaj, MIN(dataUr) AS najstarsza, MAX(dataUr) AS najmlodsza FROM kreatura GROUP BY rodzaj) B 
+	ON A.rodzaj=B.rodzaj 
+	WHERE A.dataUr = B.najstarsza OR A.dataUr = B.najmlodsza ORDER BY rodzaj;
 	
