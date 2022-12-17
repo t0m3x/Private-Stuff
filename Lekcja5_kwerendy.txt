@@ -21,10 +21,32 @@ SELECT idEtapu, wyprawa.nazwa, sektor.id_sektora, etapy_wyprawy.dziennik FROM wy
 	ORDER BY data_rozpoczecia, etapy_wyprawy.idWyprawy, etapy_wyprawy.kolejnosc;
 
 SELECT sektor.nazwa, IFNULL(COUNT(idEtapu), 0) FROM sektor
-	JOIN etapy_wyprawy ON sektor.id_sektora = etapy_wyprawy.sektor
+	LEFT JOIN etapy_wyprawy ON sektor.id_sektora = etapy_wyprawy.sektor
 	GROUP BY sektor.nazwa;
+SELECT CASE
+    	WHEN sub.wyprawy <= 0 THEN CONCAT(sub.nazwa, " nie bral(a) udzalu w zadnej wyprawie.")
+	WHEN sub.wyprawy = 1 THEN CONCAT(sub.nazwa, " bral(a) udzal w 1 wyprawie.")
+    	ELSE CONCAT(sub.nazwa, " bral(a) udzal w ", sub.wyprawy, " wyprawach.")
+    	END AS zdanie
+    	FROM (SELECT kreatura_kopia.nazwa, COUNT(uczestnicy.id_wyprawy) AS wyprawy FROM uczestnicy 
+		RIGHT JOIN kreatura_kopia ON uczestnicy.id_uczestnika = kreatura_kopia.idKreatury 
+		GROUP BY kreatura_kopia.nazwa) 
+	AS sub;
+	
+SELECT wyprawa.nazwa, SUM(CHAR_LENGTH(etapy_wyprawy.dziennik)) FROM wyprawa 
+	JOIN etapy_wyprawy ON wyprawa.id_wyprawy = etapy_wyprawy.idWyprawy 
+	GROUP BY wyprawa.id_wyprawy 
+	HAVING SUM(CHAR_LENGTH(etapy_wyprawy.dziennik)) < 400;
 SELECT wyprawa.nazwa, AVG(zasob.ilosc * zasob.waga) AS "Srednia waga zasobow na postac" FROM wyprawa
 	JOIN uczestnicy ON wyprawa.id_wyprawy = uczestnicy.id_wyprawy
 	JOIN ekwipunek ON uczestnicy.id_uczestnika = ekwipunek.idKreatury
 	JOIN zasob ON ekwipunek.idZasobu = zasob.idZasobu
 	GROUP BY nazwa;
+
+SELECT kreatura_kopia.nazwa, obecnosc.nazwa, DATEDIFF(obecnosc.data_rozpoczecia, kreatura_kopia.dataUr) AS 'wiek w dniach' FROM uczestnicy
+	JOIN kreatura_kopia ON uczestnicy.id_uczestnika = kreatura_kopia.idKreatury 
+	JOIN (SELECT wyprawa.nazwa, wyprawa.id_wyprawy, etapy_wyprawy.sektor, wyprawa.data_rozpoczecia FROM etapy_wyprawy
+		JOIN wyprawa ON etapy_wyprawy.idWyprawy = wyprawa.id_wyprawy
+		WHERE sektor = 7) 
+	AS obecnosc ON uczestnicy.id_wyprawy = obecnosc.id_wyprawy;
+	
